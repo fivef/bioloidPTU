@@ -1,0 +1,15 @@
+<package>
+  <description brief="bioloidPTU">
+
+     bioloidPTU
+
+  </description>
+  <author>sp</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/bioloidPTU</url>
+  <depend package="rospy"/>
+
+</package>
+
+
