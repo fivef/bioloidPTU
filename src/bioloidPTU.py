@@ -4,7 +4,6 @@ import serial
 import math
 import sys
 
-
 # definition of servo ids
 PAN_SERVO_ID = 2
 TILT_SERVO_ID = 6
@@ -19,13 +18,10 @@ AX12_MOVING_SPEED_L = 32  # set speed [1,0x3ff]
 AX_WRITE_DATA = 3
 AX_READ_DATA = 4
 
-
 s = serial.Serial()  # create a serial port object
 s.baudrate = 1000000  # baud rate, in bits/second
 s.port = "/dev/ttyUSB0"  # this is whatever port your are using
 s.open()
-
-
 
 
 def set_pan_angle(pan_angle_radian):
@@ -36,6 +32,7 @@ def set_pan_angle(pan_angle_radian):
     print "Set pan angle: " + str(pan_angle_radian) + " (bioloid position: " + str(pan_position) + ")"
     print "Pan servo temperature " + str(get_reg(PAN_SERVO_ID, 43, 1)) 
 
+
 def set_tilt_angle(tilt_angle_radian):
     tilt_position = int(radian_angle_to_bioloid(tilt_angle_radian))
     set_reg(TILT_SERVO_ID, AX12_MOVING_SPEED_L, ((MOVING_SPEED % 256), (MOVING_SPEED >> 8)))
@@ -45,6 +42,7 @@ def set_tilt_angle(tilt_angle_radian):
     
     print "Tilt servo temperature " + str(get_reg(TILT_SERVO_ID, 43, 1))
 
+
 # set register values
 def set_reg(id, reg, values):
     length = 3 + len(values)
@@ -53,6 +51,7 @@ def set_reg(id, reg, values):
     for val in values:
         s.write(chr(val))
     s.write(chr(checksum))
+
 
 def get_reg(index, regstart, rlength):
     s.flushInput()   
@@ -71,11 +70,13 @@ def get_reg(index, regstart, rlength):
         return vals[0]
     return vals
 
+
 def bioloid_to_radian_angle(bioloid_position):
     angle_radian = ((5 * math.pi * bioloid_position) / 3066)
     # Bioloid-Offset: 150 = initial position.
       
     return angle_radian - (math.pi * 5 / 6);
+
 
 def radian_angle_to_bioloid(angle_radian):
     # Bioloid-Offset: 150 = initial position.
