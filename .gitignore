@@ -38,8 +38,8 @@ config.mk
 3rdparty/numpy/src
 3rdparty/tinyxml/build
 3rdparty/xmlrpc++/build
-bin/*.*
-build/*.*
+bin/
+build/
 bin/rosinstall
 bin/roslaunch
 bin/rosmap
