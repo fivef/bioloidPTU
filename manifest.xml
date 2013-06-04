@@ -1,7 +1,7 @@
 <package>
   <description brief="bioloidPTU">
 
-     bioloidPTU
+     The bioloidPTU package allows the control of a pan-tilt unit (consistent of 2 Bioloid AX-12+ servos) via ROS service calls.
 
   </description>
   <author>sp</author>
