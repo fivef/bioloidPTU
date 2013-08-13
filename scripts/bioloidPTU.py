@@ -3,47 +3,67 @@ import roslib; roslib.load_manifest('bioloidPTU')
 import rospy
 import serial
 import math
+import random
 import sys
+from time import sleep
 from std_msgs.msg import Float64
 
 # definition of servo ids
 PAN_SERVO_ID = 2
 TILT_SERVO_ID = 6
 
-MOVING_SPEED = 100
+RIGHT_SERVO_ID = 9
+LEFT_SERVO_ID = 11
+
+MOVE_SPEED = 85
 
 # register addresses (don't change)
 AX12_GOAL_POSITION_L = 30  # set position
-AX12_MOVING_SPEED_L = 32  # set speed [1,0x3ff]
+AX12_MOVE_SPEED_L = 32  # set speed [1,0x3ff]
 
 # important AX-12 constants
 AX_WRITE_DATA = 3
 AX_READ_DATA = 4
 
 s = serial.Serial()  # create a serial port object
-s.baudrate = 1000000  # baud rate, in bits/second
-s.port = "/dev/ttyUSB0"  # this is whatever port your are using
-s.open()
+
+#MAXVALUE LEFT / RIGHT:
+maxleftright = 1.40
+
+def init():
+ 
+    rospy.init_node('bioloidPTU', anonymous=True)
+
+    
+    s.baudrate = 1000000  # baud rate, in bits/second
+    s.port = rospy.get_param('serial_port', '/dev/ttyUSB1')
+    # this is the serial port your are using, set by parameter
+    s.open()
+
+    rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
+    rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
+
+    boss_eyed(30)
+
+    rospy.loginfo("bioloidPTU node started")
+    rospy.spin()
 
 
 def set_pan_angle(pan_angle_radian):
-    pan_position = int(radian_angle_to_bioloid(pan_angle_radian))
-    set_reg(PAN_SERVO_ID, AX12_MOVING_SPEED_L, ((MOVING_SPEED % 256), (MOVING_SPEED >> 8)))
-    set_reg(PAN_SERVO_ID, AX12_GOAL_POSITION_L, ((pan_position % 256), (pan_position >> 8)))
 
-    rospy.logdebug("Set pan angle: " + str(pan_angle_radian) + " (bioloid position: " + str(pan_position) + ")")
-    
-    # rospy.logdebug("Pan servo temperature " + str(get_reg(PAN_SERVO_ID, 43, 1))
+    set_servo_angle(PAN_SERVO_ID, pan_angle_radian)
 
 
 def set_tilt_angle(tilt_angle_radian):
-    tilt_position = int(radian_angle_to_bioloid(tilt_angle_radian))
-    set_reg(TILT_SERVO_ID, AX12_MOVING_SPEED_L, ((MOVING_SPEED % 256), (MOVING_SPEED >> 8)))
-    set_reg(TILT_SERVO_ID, AX12_GOAL_POSITION_L, ((tilt_position % 256), (tilt_position >> 8)))
 
-    rospy.logdebug("Set tilt angle: " + str(tilt_angle_radian) + " (bioloid position: " + str(tilt_position) + ")")
+    set_servo_angle(TILT_SERVO_ID, tilt_angle_radian)
 
-    # rospy.logdebug("Tilt servo temperature " + str(get_reg(TILT_SERVO_ID, 43, 1))
+def set_servo_angle(servo_id, angle_radian):
+    position = int(radian_angle_to_bioloid(angle_radian))
+    set_reg(servo_id, AX12_MOVE_SPEED_L, ((MOVE_SPEED % 256), (MOVE_SPEED >> 8)))
+    set_reg(servo_id, AX12_GOAL_POSITION_L, ((position % 256), (position >> 8)))
+
+    rospy.logdebug("Set servo " + str(servo_id) + " angle: " + str(angle_radian) + " (bioloid position: " + str(position) + ")")
 
 
 # set register values
@@ -102,22 +122,33 @@ def tilt_callback(data):
 def pan_callback(data):
     rospy.logdebug("Pan callback")
     set_pan_angle(data.data)
-    
-    
-    
 
+def cross_eyed():
+  set_servo_angle(LEFT_SERVO_ID, -0.4)
+  set_servo_angle(RIGHT_SERVO_ID, 0.4)
 
-def listener():
-    rospy.init_node('bioloidPTU', anonymous=True)
-    rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
-    rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
-    rospy.loginfo("bioloidPTU node started")
-    rospy.spin()
+def anti_cross_eyed():
+  set_servo_angle(LEFT_SERVO_ID, 0.4)
+  set_servo_angle(RIGHT_SERVO_ID, -0.4)
 
+def boss_eyed(time):
+  for i in range(time):
+    left = random.uniform(-1, 1)
+    right = random.uniform(-1, 1)
+    tilt  = random.uniform(-0.5, 0.5)
+    pan   = random.uniform(-1.5, 1.5)
+    sleeptTime = random.uniform(1, 5)
+    set_servo_angle(LEFT_SERVO_ID, left)
+    set_servo_angle(RIGHT_SERVO_ID, right)
+    set_servo_angle(TILT_SERVO_ID, tilt)
+    set_servo_angle(PAN_SERVO_ID, pan)
+    sleep(sleeptTime)
+
+    
 
 if __name__ == '__main__':
     
-    listener()
+    init()
 
     """
     # set default args as -h , if no args:
