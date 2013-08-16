@@ -7,6 +7,8 @@ import random
 import sys
 from time import sleep
 from std_msgs.msg import Float64
+from std_srvs.srv import Empty
+
 
 # definition of servo ids
 PAN_SERVO_ID = 2
@@ -43,7 +45,10 @@ def init():
     rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
     rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
-    rospy.Subscriber("robodart_control/look_at_right_magazin", Empty, look_at_right_magazin)
+    rospy.Service('robodart_control/look_at_right_magazin', Empty, look_at_right_magazin)
+    rospy.Service('robodart_control/look_at_left_magazin', Empty, look_at_left_magazin)
+
+    look_at_home([])
 
     rospy.loginfo("bioloidPTU node started")
     rospy.spin()
@@ -123,24 +128,44 @@ def pan_callback(data):
     rospy.logdebug("Pan callback")
     set_pan_angle(data.data)
 
+def look_at_home(data):
+  set_servo_angle(PAN_SERVO_ID, 0)
+  set_servo_angle(TILT_SERVO_ID, 0)
+  set_servo_angle(LEFT_SERVO_ID, 0)
+  set_servo_angle(RIGHT_SERVO_ID, 0)
 
-def look_at_right_magazin():
-  set_servo_angle(PAN_SERVO_ID, 1.5)
 
-def look_at_left_magazin():
-  set_servo_angle(PAN_SERVO_ID, -1.5)
-  
+def look_at_right_magazin(data):
+  set_servo_angle(PAN_SERVO_ID, -1.7)
+  set_servo_angle(TILT_SERVO_ID, -0.9)
+  set_servo_angle(LEFT_SERVO_ID, -0.7)
+  set_servo_angle(RIGHT_SERVO_ID, -0.5)
 
-def cross_eyed():
+  sleep(15)
+
+  return []
+
+def look_at_left_magazin(data):
+  set_servo_angle(PAN_SERVO_ID, 1.7)
+  set_servo_angle(TILT_SERVO_ID, -0.9)
+  set_servo_angle(LEFT_SERVO_ID, 0.5)
+  set_servo_angle(RIGHT_SERVO_ID, 0.7)
+  return [] 
+
+def cross_eyed(data):
   set_servo_angle(LEFT_SERVO_ID, -0.4)
   set_servo_angle(RIGHT_SERVO_ID, 0.4)
 
-def anti_cross_eyed():
+  return []
+
+def anti_cross_eyed(data):
   set_servo_angle(LEFT_SERVO_ID, 0.4)
   set_servo_angle(RIGHT_SERVO_ID, -0.4)
+  return []
 
-def boss_eyed(time):
-  for i in range(time):
+def boss_eyed(data):
+  for i in range(5):
+
     left = random.uniform(-1, 1)
     right = random.uniform(-1, 1)
     tilt  = random.uniform(-0.5, 0.5)
@@ -151,6 +176,10 @@ def boss_eyed(time):
     set_servo_angle(TILT_SERVO_ID, tilt)
     set_servo_angle(PAN_SERVO_ID, pan)
     sleep(sleeptTime)
+  return []
+
+def sad_mode(data):
+  say("I am sad")
 
     
 
