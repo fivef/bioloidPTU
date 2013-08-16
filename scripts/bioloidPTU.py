@@ -43,7 +43,8 @@ def init():
     rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
     rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
-    boss_eyed(30)
+    #boss_eyed(30)
+    cross_eyed()
 
     rospy.loginfo("bioloidPTU node started")
     rospy.spin()
