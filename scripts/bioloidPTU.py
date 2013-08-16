@@ -43,8 +43,7 @@ def init():
     rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
     rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
-    #boss_eyed(30)
-    cross_eyed()
+    rospy.Subscriber("robodart_control/look_at_right_magazin", Empty, look_at_right_magazin)
 
     rospy.loginfo("bioloidPTU node started")
     rospy.spin()
@@ -123,6 +122,14 @@ def tilt_callback(data):
 def pan_callback(data):
     rospy.logdebug("Pan callback")
     set_pan_angle(data.data)
+
+
+def look_at_right_magazin():
+  set_servo_angle(PAN_SERVO_ID, 1.5)
+
+def look_at_left_magazin():
+  set_servo_angle(PAN_SERVO_ID, -1.5)
+  
 
 def cross_eyed():
   set_servo_angle(LEFT_SERVO_ID, -0.4)
