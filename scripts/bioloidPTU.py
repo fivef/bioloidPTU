@@ -50,6 +50,8 @@ def init():
 
     look_at_home([])
 
+    #look_at_right_magazin([])
+
     rospy.loginfo("bioloidPTU node started")
     rospy.spin()
 
@@ -67,6 +69,8 @@ def set_servo_angle(servo_id, angle_radian):
     position = int(radian_angle_to_bioloid(angle_radian))
     set_reg(servo_id, AX12_MOVE_SPEED_L, ((MOVE_SPEED % 256), (MOVE_SPEED >> 8)))
     set_reg(servo_id, AX12_GOAL_POSITION_L, ((position % 256), (position >> 8)))
+
+    sleep(0.1)
 
     rospy.logdebug("Set servo " + str(servo_id) + " angle: " + str(angle_radian) + " (bioloid position: " + str(position) + ")")
 
@@ -140,9 +144,6 @@ def look_at_right_magazin(data):
   set_servo_angle(TILT_SERVO_ID, -0.9)
   set_servo_angle(LEFT_SERVO_ID, -0.7)
   set_servo_angle(RIGHT_SERVO_ID, -0.5)
-
-  sleep(15)
-
   return []
 
 def look_at_left_magazin(data):
