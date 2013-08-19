@@ -1,18 +1,22 @@
+# ignore python compiled files
+*.pyc
+
+#ignore gedit temp files
+*.*~
+
+# ignore binaries and build files
+build/*
+bin/*
+lib/*
+srv_gen/*
+
+#ignore eclipse files
 .cproject
 .project
 .pydevproject
-cmake_install.cmake
-build/
-bin/
-lib/
-msg_gen/
-srv_gen/
-*.pyc
-[Subprojects]/
-[Targets]/
 CATKIN_IGNORE
-gtest/
-catkin_generated/
 catkin/
+catkin_generated/
+cmake_install.cmake
 devel/
-*~
+gtest/
