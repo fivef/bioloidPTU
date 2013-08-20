@@ -8,6 +8,10 @@ import sys
 from time import sleep
 from std_msgs.msg import Float64
 from std_srvs.srv import Empty
+import actionlib
+from pr2_plugs_msgs.msg import EmptyAction
+from pr2_plugs_msgs.msg._EmptyActionResult import EmptyActionResult
+from pr2_plugs_msgs.msg._EmptyActionGoal import EmptyActionGoal
 
 
 # definition of servo ids
@@ -32,7 +36,12 @@ s = serial.Serial()  # create a serial port object
 #MAXVALUE LEFT / RIGHT:
 maxleftright = 1.40
 
+actionServerLeft = None
+actionServerRight = None
+actionServerHome = None
+
 def init():
+    global actionServerLeft, actionServerRight, actionServerHome
  
     rospy.init_node('bioloidPTU', anonymous=True)
 
@@ -45,11 +54,15 @@ def init():
     rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
     rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
-    rospy.Service('robodart_control/look_at_right_magazin', Empty, look_at_right_magazin)
-    rospy.Service('robodart_control/look_at_left_magazin', Empty, look_at_left_magazin)
-
-    look_at_home([])
-
+    #rospy.Service('robodart_control/look_at_right_magazin', Empty, look_at_right_magazin)
+    actionServerLeft = actionlib.SimpleActionServer('robodart_control/look_at_left_magazin', EmptyAction, execute_cb=look_at_left_magazin)
+    actionServerRight = actionlib.SimpleActionServer('robodart_control/look_at_right_magazin', EmptyAction, execute_cb=look_at_right_magazin)
+    actionServerHome = actionlib.SimpleActionServer('robodart_control/look_at_home', EmptyAction, execute_cb=look_at_home)
+    actionServerLeft.start()
+    actionServerRight.start()
+    actionServerHome.start()
+    look_at_home_standalone([])
+    
     #look_at_right_magazin([])
 
     rospy.loginfo("bioloidPTU node started")
@@ -132,11 +145,20 @@ def pan_callback(data):
     rospy.logdebug("Pan callback")
     set_pan_angle(data.data)
 
+def look_at_home_standalone(data):
+  set_servo_angle(PAN_SERVO_ID, 0)
+  set_servo_angle(TILT_SERVO_ID, 0)
+  set_servo_angle(LEFT_SERVO_ID, 0)
+  set_servo_angle(RIGHT_SERVO_ID, 0)
+
 def look_at_home(data):
   set_servo_angle(PAN_SERVO_ID, 0)
   set_servo_angle(TILT_SERVO_ID, 0)
   set_servo_angle(LEFT_SERVO_ID, 0)
   set_servo_angle(RIGHT_SERVO_ID, 0)
+  
+  result = EmptyActionResult()
+  actionServerHome.set_succeeded(result=result)
 
 
 def look_at_right_magazin(data):
@@ -144,14 +166,18 @@ def look_at_right_magazin(data):
   set_servo_angle(TILT_SERVO_ID, -0.9)
   set_servo_angle(LEFT_SERVO_ID, -0.7)
   set_servo_angle(RIGHT_SERVO_ID, -0.5)
-  return []
+  
+  result = EmptyActionResult()
+  actionServerRight.set_succeeded(result=result)
 
 def look_at_left_magazin(data):
   set_servo_angle(PAN_SERVO_ID, 1.7)
   set_servo_angle(TILT_SERVO_ID, -0.9)
   set_servo_angle(LEFT_SERVO_ID, 0.5)
   set_servo_angle(RIGHT_SERVO_ID, 0.7)
-  return [] 
+  
+  result = EmptyActionResult()
+  actionServerLeft.set_succeeded(result=result) 
 
 def cross_eyed(data):
   set_servo_angle(LEFT_SERVO_ID, -0.4)
