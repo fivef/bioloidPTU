@@ -39,28 +39,43 @@ maxleftright = 1.40
 actionServerLeft = None
 actionServerRight = None
 actionServerHome = None
+actionServerCross = None
+actionServerAntiCross = None
+actionServerBoss = None
+actionServerSad = None
+actionServerDart = None
 
 def init():
-    global actionServerLeft, actionServerRight, actionServerHome
+    global actionServerLeft, actionServerRight, actionServerHome, actionServerCross, actionServerAntiCross, actionServerBoss, actionServerSad, actionServerDart
  
     rospy.init_node('bioloidPTU', anonymous=True)
 
     
     s.baudrate = 1000000  # baud rate, in bits/second
-    s.port = rospy.get_param('serial_port', '/dev/ttyUSB1')
+    s.port = rospy.get_param('serial_port', '/dev/ttyUSB0')
     # this is the serial port your are using, set by parameter
     s.open()
 
-    rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
-    rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
+    #rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
+    #rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
     #rospy.Service('robodart_control/look_at_right_magazin', Empty, look_at_right_magazin)
     actionServerLeft = actionlib.SimpleActionServer('robodart_control/look_at_left_magazin', EmptyAction, execute_cb=look_at_left_magazin)
     actionServerRight = actionlib.SimpleActionServer('robodart_control/look_at_right_magazin', EmptyAction, execute_cb=look_at_right_magazin)
     actionServerHome = actionlib.SimpleActionServer('robodart_control/look_at_home', EmptyAction, execute_cb=look_at_home)
+    actionServerCross = actionlib.SimpleActionServer('robodart_control/look_cross', EmptyAction, execute_cb=cross_eyed)
+    actionServerBoss = actionlib.SimpleActionServer('robodart_control/look_boss', EmptyAction, execute_cb=boss_eyed)
+    actionServerAntiCross = actionlib.SimpleActionServer('robodart_control/look_anti_cross', EmptyAction, execute_cb=anti_cross_eyed)
+    actionServerSad = actionlib.SimpleActionServer('robodart_control/look_sad', EmptyAction, execute_cb=sad_mode)
+    actionServerDart = actionlib.SimpleActionServer('robodart_control/look_at_dartboard', EmptyAction, execute_cb=look_at_dartboard)
     actionServerLeft.start()
     actionServerRight.start()
     actionServerHome.start()
+    actionServerCross.start()
+    actionServerAntiCross.start()
+    actionServerBoss.start()
+    actionServerSad.start()
+    actionServerDart.start()
     look_at_home_standalone([])
     
     #look_at_right_magazin([])
@@ -83,7 +98,7 @@ def set_servo_angle(servo_id, angle_radian):
     set_reg(servo_id, AX12_MOVE_SPEED_L, ((MOVE_SPEED % 256), (MOVE_SPEED >> 8)))
     set_reg(servo_id, AX12_GOAL_POSITION_L, ((position % 256), (position >> 8)))
 
-    sleep(0.1)
+    #sleep(0.1)
 
     rospy.logdebug("Set servo " + str(servo_id) + " angle: " + str(angle_radian) + " (bioloid position: " + str(position) + ")")
 
@@ -183,12 +198,15 @@ def cross_eyed(data):
   set_servo_angle(LEFT_SERVO_ID, -0.4)
   set_servo_angle(RIGHT_SERVO_ID, 0.4)
 
-  return []
+  result = EmptyActionResult()
+  actionServerCross.set_succeeded(result=result) 
 
 def anti_cross_eyed(data):
   set_servo_angle(LEFT_SERVO_ID, 0.4)
   set_servo_angle(RIGHT_SERVO_ID, -0.4)
-  return []
+  
+  result = EmptyActionResult()
+  actionServerAntiCross.set_succeeded(result=result)
 
 def boss_eyed(data):
   for i in range(5):
@@ -203,10 +221,41 @@ def boss_eyed(data):
     set_servo_angle(TILT_SERVO_ID, tilt)
     set_servo_angle(PAN_SERVO_ID, pan)
     sleep(sleeptTime)
-  return []
+  
+  result = EmptyActionResult()
+  actionServerBoss.set_succeeded(result=result)
 
 def sad_mode(data):
-  say("I am sad")
+  set_servo_angle(PAN_SERVO_ID, 0)
+  set_servo_angle(TILT_SERVO_ID, -0.9)
+  set_servo_angle(LEFT_SERVO_ID, 0)
+  set_servo_angle(RIGHT_SERVO_ID, 0)
+  
+  sleep(1.0)
+  set_servo_angle(PAN_SERVO_ID, 0.5)
+  sleep(0.4)
+  set_servo_angle(PAN_SERVO_ID, -0.5)
+  sleep(0.8)
+  set_servo_angle(PAN_SERVO_ID, 0.5)
+  sleep(0.8)
+  set_servo_angle(PAN_SERVO_ID, -0.5)
+  sleep(0.8)
+  set_servo_angle(PAN_SERVO_ID, 0.5)
+  sleep(0.8)
+  
+  look_at_home_standalone(None)
+  
+  result = EmptyActionResult()
+  actionServerSad.set_succeeded(result=result)
+  
+def look_at_dartboard(data):
+  set_servo_angle(PAN_SERVO_ID, 0.0)
+  set_servo_angle(TILT_SERVO_ID, -0.75)
+  set_servo_angle(LEFT_SERVO_ID, 0.0)
+  set_servo_angle(RIGHT_SERVO_ID, 0.0)
+  
+  result = EmptyActionResult()
+  actionServerDart.set_succeeded(result=result)
 
     
 
