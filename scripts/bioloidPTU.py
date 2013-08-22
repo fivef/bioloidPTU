@@ -52,7 +52,7 @@ def init():
 
     
     s.baudrate = 1000000  # baud rate, in bits/second
-    s.port = rospy.get_param('serial_port', '/dev/ttyUSB0')
+    s.port = rospy.get_param('serial_port', '/dev/bioloidptu')
     # this is the serial port your are using, set by parameter
     s.open()
 
