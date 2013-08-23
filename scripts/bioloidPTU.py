@@ -18,8 +18,7 @@ from pr2_plugs_msgs.msg._EmptyActionGoal import EmptyActionGoal
 PAN_SERVO_ID = 2
 TILT_SERVO_ID = 6
 
-RIGHT_SERVO_ID = 9
-LEFT_SERVO_ID = 11
+EYE_BROWS = 9
 
 MOVE_SPEED = 85
 
@@ -39,8 +38,6 @@ maxleftright = 1.40
 actionServerLeft = None
 actionServerRight = None
 actionServerHome = None
-actionServerCross = None
-actionServerAntiCross = None
 actionServerBoss = None
 actionServerSad = None
 actionServerDart = None
@@ -63,16 +60,12 @@ def init():
     actionServerLeft = actionlib.SimpleActionServer('robodart_control/look_at_left_magazin', EmptyAction, execute_cb=look_at_left_magazin)
     actionServerRight = actionlib.SimpleActionServer('robodart_control/look_at_right_magazin', EmptyAction, execute_cb=look_at_right_magazin)
     actionServerHome = actionlib.SimpleActionServer('robodart_control/look_at_home', EmptyAction, execute_cb=look_at_home)
-    actionServerCross = actionlib.SimpleActionServer('robodart_control/look_cross', EmptyAction, execute_cb=cross_eyed)
     actionServerBoss = actionlib.SimpleActionServer('robodart_control/look_boss', EmptyAction, execute_cb=boss_eyed)
-    actionServerAntiCross = actionlib.SimpleActionServer('robodart_control/look_anti_cross', EmptyAction, execute_cb=anti_cross_eyed)
     actionServerSad = actionlib.SimpleActionServer('robodart_control/look_sad', EmptyAction, execute_cb=sad_mode)
     actionServerDart = actionlib.SimpleActionServer('robodart_control/look_at_dartboard', EmptyAction, execute_cb=look_at_dartboard)
     actionServerLeft.start()
     actionServerRight.start()
     actionServerHome.start()
-    actionServerCross.start()
-    actionServerAntiCross.start()
     actionServerBoss.start()
     actionServerSad.start()
     actionServerDart.start()
@@ -163,14 +156,14 @@ def pan_callback(data):
 def look_at_home_standalone(data):
   set_servo_angle(PAN_SERVO_ID, 0)
   set_servo_angle(TILT_SERVO_ID, 0)
-  set_servo_angle(LEFT_SERVO_ID, 0)
-  set_servo_angle(RIGHT_SERVO_ID, 0)
+  set_servo_angle(EYE_BROWS, 0)
+
 
 def look_at_home(data):
   set_servo_angle(PAN_SERVO_ID, 0)
   set_servo_angle(TILT_SERVO_ID, 0)
-  set_servo_angle(LEFT_SERVO_ID, 0)
-  set_servo_angle(RIGHT_SERVO_ID, 0)
+  set_servo_angle(EYE_BROWS, 0)
+
   
   result = EmptyActionResult()
   actionServerHome.set_succeeded(result=result)
@@ -178,46 +171,30 @@ def look_at_home(data):
 
 def look_at_right_magazin(data):
   set_servo_angle(PAN_SERVO_ID, -1.7)
-  set_servo_angle(TILT_SERVO_ID, -0.9)
-  set_servo_angle(LEFT_SERVO_ID, -0.7)
-  set_servo_angle(RIGHT_SERVO_ID, -0.5)
-  
+  set_servo_angle(TILT_SERVO_ID, 0.9)
+  set_servo_angle(EYE_BROWS, 0)
+
   result = EmptyActionResult()
   actionServerRight.set_succeeded(result=result)
 
 def look_at_left_magazin(data):
   set_servo_angle(PAN_SERVO_ID, 1.7)
-  set_servo_angle(TILT_SERVO_ID, -0.9)
-  set_servo_angle(LEFT_SERVO_ID, 0.5)
-  set_servo_angle(RIGHT_SERVO_ID, 0.7)
+  set_servo_angle(TILT_SERVO_ID, 0.9)
+  set_servo_angle(EYE_BROWS, 0.5)
+
   
   result = EmptyActionResult()
   actionServerLeft.set_succeeded(result=result) 
 
-def cross_eyed(data):
-  set_servo_angle(LEFT_SERVO_ID, -0.4)
-  set_servo_angle(RIGHT_SERVO_ID, 0.4)
-
-  result = EmptyActionResult()
-  actionServerCross.set_succeeded(result=result) 
-
-def anti_cross_eyed(data):
-  set_servo_angle(LEFT_SERVO_ID, 0.4)
-  set_servo_angle(RIGHT_SERVO_ID, -0.4)
-  
-  result = EmptyActionResult()
-  actionServerAntiCross.set_succeeded(result=result)
 
 def boss_eyed(data):
   for i in range(5):
 
-    left = random.uniform(-1, 1)
-    right = random.uniform(-1, 1)
+    brows = random.uniform(-0.1, 0.1)
     tilt  = random.uniform(-0.5, 0.5)
     pan   = random.uniform(-1.5, 1.5)
     sleeptTime = random.uniform(1, 5)
-    set_servo_angle(LEFT_SERVO_ID, left)
-    set_servo_angle(RIGHT_SERVO_ID, right)
+    set_servo_angle(EYE_BROWS, brows)
     set_servo_angle(TILT_SERVO_ID, tilt)
     set_servo_angle(PAN_SERVO_ID, pan)
     sleep(sleeptTime)
@@ -228,8 +205,8 @@ def boss_eyed(data):
 def sad_mode(data):
   set_servo_angle(PAN_SERVO_ID, 0)
   set_servo_angle(TILT_SERVO_ID, -0.9)
-  set_servo_angle(LEFT_SERVO_ID, 0)
-  set_servo_angle(RIGHT_SERVO_ID, 0)
+  set_servo_angle(EYE_BROWS, 0)
+
   
   sleep(1.0)
   set_servo_angle(PAN_SERVO_ID, 0.5)
@@ -250,9 +227,9 @@ def sad_mode(data):
   
 def look_at_dartboard(data):
   set_servo_angle(PAN_SERVO_ID, 0.0)
-  set_servo_angle(TILT_SERVO_ID, -0.75)
-  set_servo_angle(LEFT_SERVO_ID, 0.0)
-  set_servo_angle(RIGHT_SERVO_ID, 0.0)
+  set_servo_angle(TILT_SERVO_ID, 0.75)
+  set_servo_angle(EYE_BROWS, 0.1)
+  
   
   result = EmptyActionResult()
   actionServerDart.set_succeeded(result=result)
