@@ -171,16 +171,16 @@ def look_at_home(data):
 
 def look_at_right_magazin(data):
   set_servo_angle(PAN_SERVO_ID, -1.7)
-  set_servo_angle(TILT_SERVO_ID, 0.9)
-  set_servo_angle(EYE_BROWS, 0)
+  set_servo_angle(TILT_SERVO_ID, 0.45)
+  set_servo_angle(EYE_BROWS, -0.3)
 
   result = EmptyActionResult()
   actionServerRight.set_succeeded(result=result)
 
 def look_at_left_magazin(data):
   set_servo_angle(PAN_SERVO_ID, 1.7)
-  set_servo_angle(TILT_SERVO_ID, 0.9)
-  set_servo_angle(EYE_BROWS, 0.5)
+  set_servo_angle(TILT_SERVO_ID, 0.45)
+  set_servo_angle(EYE_BROWS, -0.3)
 
   
   result = EmptyActionResult()
