@@ -232,13 +232,18 @@ def sad_mode(data):
   actionServerSad.set_succeeded(result=result)
   
 def look_sentence(data):
-  set_servo_angle(EYE_BROWS, 0)
-  set_servo_angle(TILT_SERVO_ID, 0.4)
-  set_servo_angle(PAN_SERVO_ID, 0.5)
-  sleep(1.0)
-  set_servo_angle(PAN_SERVO_ID, -0.5)
-  sleep(1.0)
+  set_servo_angle(EYE_BROWS, -0.3)
+  sleep(0.6)
+  set_servo_angle(PAN_SERVO_ID, 0.9)
+  sleep(0.3)
+  set_servo_angle(TILT_SERVO_ID, -0.2)  
+  sleep(3.0)
+  set_servo_angle(PAN_SERVO_ID, -0.6)
+  sleep(2.0)
   look_at_home_standalone(None)
+  
+  result = EmptyActionResult()
+  actionServerSentence.set_succeeded(result=result)
   
 def look_at_dartboard(data):
   set_servo_angle(PAN_SERVO_ID, 0.0)
