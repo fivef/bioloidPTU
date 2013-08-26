@@ -42,9 +42,10 @@ actionServerBoss = None
 actionServerSad = None
 actionServerDart = None
 actionServerAround = None
+actionServerSentence = None
 
 def init():
-    global actionServerLeft, actionServerRight, actionServerHome, actionServerCross, actionServerAntiCross, actionServerBoss, actionServerSad, actionServerDart, actionServerAround
+    global actionServerLeft, actionServerRight, actionServerHome, actionServerCross, actionServerAntiCross, actionServerBoss, actionServerSad, actionServerDart, actionServerAround, actionServerSentence
  
     rospy.init_node('bioloidPTU', anonymous=True)
 
@@ -65,6 +66,7 @@ def init():
     actionServerSad = actionlib.SimpleActionServer('robodart_control/look_sad', EmptyAction, execute_cb=sad_mode)
     actionServerDart = actionlib.SimpleActionServer('robodart_control/look_at_dartboard', EmptyAction, execute_cb=look_at_dartboard)
     actionServerAround = actionlib.SimpleActionServer('robodart_control/look_around', EmptyAction, execute_cb=look_around)
+    actionServerSentence = actionlib.SimpleActionServer('robodart_control/look_sentence', EmptyAction, execute_cb=look_sentence)
     actionServerLeft.start()
     actionServerRight.start()
     actionServerHome.start()
@@ -72,6 +74,7 @@ def init():
     actionServerSad.start()
     actionServerDart.start()
     actionServerAround.start()
+    actionServerSentence.start()
     look_at_home_standalone([])
     
     #look_at_right_magazin([])
@@ -227,6 +230,15 @@ def sad_mode(data):
   
   result = EmptyActionResult()
   actionServerSad.set_succeeded(result=result)
+  
+def look_sentence(data):
+  set_servo_angle(EYE_BROWS, 0)
+  set_servo_angle(TILT_SERVO_ID, 0.4)
+  set_servo_angle(PAN_SERVO_ID, 0.5)
+  sleep(1.0)
+  set_servo_angle(PAN_SERVO_ID, -0.5)
+  sleep(1.0)
+  look_at_home_standalone(None)
   
 def look_at_dartboard(data):
   set_servo_angle(PAN_SERVO_ID, 0.0)
