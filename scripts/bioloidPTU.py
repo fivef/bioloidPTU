@@ -20,7 +20,7 @@ TILT_SERVO_ID = 6
 
 EYE_BROWS = 9
 
-MOVE_SPEED = 85
+MOVE_SPEED = 50
 
 # register addresses (don't change)
 AX12_GOAL_POSITION_L = 30  # set position
@@ -41,9 +41,10 @@ actionServerHome = None
 actionServerBoss = None
 actionServerSad = None
 actionServerDart = None
+actionServerAround = None
 
 def init():
-    global actionServerLeft, actionServerRight, actionServerHome, actionServerCross, actionServerAntiCross, actionServerBoss, actionServerSad, actionServerDart
+    global actionServerLeft, actionServerRight, actionServerHome, actionServerCross, actionServerAntiCross, actionServerBoss, actionServerSad, actionServerDart, actionServerAround
  
     rospy.init_node('bioloidPTU', anonymous=True)
 
@@ -63,12 +64,14 @@ def init():
     actionServerBoss = actionlib.SimpleActionServer('robodart_control/look_boss', EmptyAction, execute_cb=boss_eyed)
     actionServerSad = actionlib.SimpleActionServer('robodart_control/look_sad', EmptyAction, execute_cb=sad_mode)
     actionServerDart = actionlib.SimpleActionServer('robodart_control/look_at_dartboard', EmptyAction, execute_cb=look_at_dartboard)
+    actionServerAround = actionlib.SimpleActionServer('robodart_control/look_around', EmptyAction, execute_cb=look_around)
     actionServerLeft.start()
     actionServerRight.start()
     actionServerHome.start()
     actionServerBoss.start()
     actionServerSad.start()
     actionServerDart.start()
+    actionServerAround.start()
     look_at_home_standalone([])
     
     #look_at_right_magazin([])
@@ -233,6 +236,22 @@ def look_at_dartboard(data):
   
   result = EmptyActionResult()
   actionServerDart.set_succeeded(result=result)
+
+def look_around(data):
+  while not actionServerAround.is_preempt_requested():
+    brows = random.choice([-0.3, 0.0])
+    tilt  = random.uniform(-0.3, 0.3)
+    pan   = random.uniform(-1.2, 1.2)
+    sleeptTime = random.uniform(3, 6)
+    set_servo_angle(EYE_BROWS, brows)
+    set_servo_angle(TILT_SERVO_ID, tilt)
+    set_servo_angle(PAN_SERVO_ID, pan)
+    sleep(sleeptTime)
+    
+  look_at_home_standalone([])
+  
+  result = EmptyActionResult()
+  actionServerAround.set_succeeded(result=result)
 
     
 
