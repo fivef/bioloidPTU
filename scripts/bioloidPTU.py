@@ -210,8 +210,8 @@ def boss_eyed(data):
 
 def sad_mode(data):
   set_servo_angle(PAN_SERVO_ID, 0)
-  set_servo_angle(TILT_SERVO_ID, -0.9)
-  set_servo_angle(EYE_BROWS, 0)
+  set_servo_angle(TILT_SERVO_ID, 0.3)
+  set_servo_angle(EYE_BROWS, -0.3)
 
   
   sleep(1.0)
