@@ -36,16 +36,19 @@ def init():
 
     
     s.baudrate = 1000000  # baud rate, in bits/second
-    s.port = rospy.get_param('serial_port', '/dev/ttyUSB1')
+    s.port = rospy.get_param('serial_port', '/dev/ttyUSB0')
     # this is the serial port your are using, set by parameter
     s.open()
 
     rospy.Subscriber("kurtana_pitch_joint_controller/command", Float64, tilt_callback)
     rospy.Subscriber("kurtana_roll_joint_controller/command", Float64, pan_callback)
 
-    rospy.Subscriber("robodart_control/look_at_right_magazin", Empty, look_at_right_magazin)
-
     rospy.loginfo("bioloidPTU node started")
+
+    set_tilt_angle(0)
+
+    set_pan_angle(0)
+
     rospy.spin()
 
 
